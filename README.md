@@ -2,7 +2,7 @@
 
 ## Overview
 
-ScamShield is an AI-powered system that analyzes recorded phone calls to detect suspicious activities by processing audio files, converting them to text, and performing keyword-based analysis.
+ScamShield is an AI-powered system that analyzes recorded phone calls to detect suspicious activities by processing audio files.
 
 ## Project Structure
 
