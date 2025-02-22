@@ -9,6 +9,7 @@ function Search() {
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
+  const [transcription, setTranscription] = useState<string | null>(null);
 
   const handleFileSelect = async (file: File) => {
     setIsTranscribing(true);
@@ -16,16 +17,17 @@ function Search() {
 
     try {
       // First get transcription from Groq
-      const transcription = await transcribeAudio(file);
+      const transcriptionText = await transcribeAudio(file);
+      setTranscription(transcriptionText);
       setIsTranscribing(false);
 
       // Get detailed analysis from Groq
-      const analysisDetails = await analyzeTranscription(transcription);
+      const analysisDetails = await analyzeTranscription(transcriptionText);
 
       // Then send for prediction
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("transcription", transcription);
+      formData.append("transcription", transcriptionText);
 
       const response = await fetch("http://localhost:8000/predict", {
         method: "POST",
@@ -47,6 +49,7 @@ function Search() {
       console.error("Processing error:", error);
       toast.error(error instanceof Error ? error.message : "Failed to process the audio file");
       setAnalysis(null);
+      setTranscription(null);
     } finally {
       setIsTranscribing(false);
       setIsAnalyzing(false);
@@ -80,7 +83,7 @@ function Search() {
 
           {analysis && !isAnalyzing && (
             <>
-              <AnalysisResult analysis={analysis} />
+              <AnalysisResult analysis={analysis} transcription={transcription} />
               <div className="text-center">
                 <button
                   onClick={() => setAnalysis(null)}
