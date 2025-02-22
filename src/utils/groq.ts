@@ -35,18 +35,28 @@ export async function transcribeAudio(audioFile: File): Promise<string> {
   }
 }
 
-export async function analyzeTranscription(transcription: string): Promise<string> {
+export async function analyzeTranscription(transcription: string, label: string, score: number): Promise<string> {
   try {
     const chat_completion = await groq.chat.completions.create({
       messages: [
         {
           role: "system",
           content:
-            "You are an expert at analyzing potential scam calls. Analyze the given transcription and explain in detail why it might be a scam or legitimate call. Focus on identifying red flags, manipulation tactics, or genuine business practices.",
+            "You are an expert at analyzing potential scam calls. Your task is to provide a detailed analysis of the transcription, considering the ML model's prediction. Focus on specific red flags or legitimate business practices found in the text.",
         },
         {
           role: "user",
-          content: `Analyze this call transcription and explain why it might be a scam or not: "${transcription}"`,
+          content: `Analyze this call transcription. The ML model predicted it's a ${label} call with ${(
+            score * 100
+          ).toFixed(2)}% confidence.
+          
+Transcription: "${transcription}"
+
+Please provide a detailed analysis explaining:
+1. What specific elements in the call suggest it's ${label === "spam" ? "a scam" : "legitimate"}
+2. Key warning signs or verification points
+3. What the caller is trying to achieve
+4. Recommendations for handling similar calls`,
         },
       ],
       model: "llama-3.1-8b-instant",

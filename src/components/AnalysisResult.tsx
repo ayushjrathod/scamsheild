@@ -10,16 +10,18 @@ export function AnalysisResult({ analysis, transcription }: AnalysisResultProps)
   const isScam = analysis.label === "spam";
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Transcription Card */}
       {transcription && (
         <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Transcription</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Call Transcription</h2>
           <div className="bg-gray-50 p-4 rounded-lg">
             <p className="text-gray-700 whitespace-pre-wrap">{transcription}</p>
           </div>
         </div>
       )}
 
+      {/* Analysis Card */}
       <div className="bg-white rounded-lg shadow-lg p-6 space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-gray-900">Analysis Result</h2>

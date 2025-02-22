@@ -16,15 +16,11 @@ function Search() {
     setIsAnalyzing(true);
 
     try {
-      // First get transcription from Groq
       const transcriptionText = await transcribeAudio(file);
       setTranscription(transcriptionText);
       setIsTranscribing(false);
 
-      // Get detailed analysis from Groq
-      const analysisDetails = await analyzeTranscription(transcriptionText);
-
-      // Then send for prediction
+      // Get prediction first
       const formData = new FormData();
       formData.append("file", file);
       formData.append("transcription", transcriptionText);
@@ -38,10 +34,15 @@ function Search() {
         throw new Error("Failed to analyze transcription");
       }
 
-      const result: Analysis = await response.json();
+      const result = await response.json();
+
+      // Get detailed analysis using prediction results
+      const analysisDetails = await analyzeTranscription(transcriptionText, result.label, result.score);
+
       setAnalysis({
         ...result,
         analysis_details: analysisDetails,
+        transcription: transcriptionText,
       });
 
       toast.success("Analysis completed successfully!");
