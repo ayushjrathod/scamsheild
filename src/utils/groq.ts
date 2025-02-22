@@ -56,7 +56,10 @@ Please provide a detailed analysis explaining:
 1. What specific elements in the call suggest it's ${label === "spam" ? "a scam" : "legitimate"}
 2. Key warning signs or verification points
 3. What the caller is trying to achieve
-4. Recommendations for handling similar calls`,
+4. Recommendations for handling similar calls
+5. only explain the transcription and the prediction, do not counter it.
+
+`,
         },
       ],
       model: "llama-3.1-8b-instant",

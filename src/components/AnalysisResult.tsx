@@ -1,3 +1,4 @@
+import ReactMarkdown from "react-markdown";
 import { Analysis } from "../types";
 
 interface AnalysisResultProps {
@@ -15,8 +16,8 @@ export function AnalysisResult({ analysis, transcription }: AnalysisResultProps)
       {transcription && (
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Call Transcription</h2>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <p className="text-gray-700 whitespace-pre-wrap">{transcription}</p>
+          <div className="bg-gray-50 p-4 rounded-lg prose prose-amber max-w-none">
+            <ReactMarkdown>{transcription}</ReactMarkdown>
           </div>
         </div>
       )}
@@ -49,7 +50,9 @@ export function AnalysisResult({ analysis, transcription }: AnalysisResultProps)
           {analysis.analysis_details && (
             <div className="mt-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Detailed Analysis</h3>
-              <p className="text-gray-700 whitespace-pre-wrap">{analysis.analysis_details}</p>
+              <div className="prose prose-amber max-w-none">
+                <ReactMarkdown>{analysis.analysis_details}</ReactMarkdown>
+              </div>
             </div>
           )}
         </div>

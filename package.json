@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@splinetool/react-spline": "^4.0.0",
+    "@tailwindcss/typography": "^0.5.16",
     "clsx": "^2.1.1",
     "framer-motion": "^12.4.7",
     "groq-sdk": "^0.15.0",
@@ -19,6 +20,7 @@
     "react-dom": "^18.3.1",
     "react-dropzone": "^14.2.3",
     "react-hot-toast": "^2.4.1",
+    "react-markdown": "^10.0.0",
     "react-router-dom": "^7.2.0",
     "tailwind-merge": "^3.0.1"
   },

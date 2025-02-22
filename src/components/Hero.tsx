@@ -47,7 +47,7 @@ const Hero = () => {
       </div>
 
       {/* Right column with Spline component */}
-      <div className="hidden lg:block relative h-screen w-fit">
+      <div className="hidden lg:block relative h-screen w-full">
         <Spline scene="https://prod.spline.design/C6bXa4xnIEU3ce52/scene.splinecode" />
       </div>
 
