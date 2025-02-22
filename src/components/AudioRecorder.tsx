@@ -1,96 +1,4 @@
 import { useRef, useState } from "react";
-import { transcribeAudio } from "../utils/groq";
-
-// Add this function at the top level, outside the component
-async function convertWebMToWav(webmBlob: Blob): Promise<File> {
-  // Create an audio context
-  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-
-  // Convert blob to array buffer
-  const arrayBuffer = await webmBlob.arrayBuffer();
-
-  // Decode the audio data
-  const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-
-  // Create an offline context for rendering
-  const offlineContext = new OfflineAudioContext(
-    audioBuffer.numberOfChannels,
-    audioBuffer.length,
-    audioBuffer.sampleRate
-  );
-
-  // Create a buffer source
-  const source = offlineContext.createBufferSource();
-  source.buffer = audioBuffer;
-  source.connect(offlineContext.destination);
-  source.start();
-
-  // Render the audio
-  const renderedBuffer = await offlineContext.startRendering();
-
-  // Convert to WAV format
-  const wavBlob = await new Promise<Blob>((resolve) => {
-    const length = renderedBuffer.length;
-    const numberOfChannels = renderedBuffer.numberOfChannels;
-    const sampleRate = renderedBuffer.sampleRate;
-    const wavDataView = createWavDataView(length, numberOfChannels, sampleRate);
-    const audioData = new Float32Array(length * numberOfChannels);
-
-    for (let channel = 0; channel < numberOfChannels; channel++) {
-      const channelData = renderedBuffer.getChannelData(channel);
-      for (let i = 0; i < length; i++) {
-        audioData[i * numberOfChannels + channel] = channelData[i];
-      }
-    }
-
-    wavDataView.setFloat32Array(44, audioData);
-    resolve(new Blob([wavDataView], { type: "audio/wav" }));
-  });
-
-  return new File([wavBlob], `recording-${Date.now()}.wav`, { type: "audio/wav" });
-}
-
-// Helper function to create WAV header
-function createWavDataView(length: number, numberOfChannels: number, sampleRate: number): DataView {
-  const buffer = new ArrayBuffer(44 + length * numberOfChannels * 4);
-  const view = new DataView(buffer);
-
-  // RIFF chunk descriptor
-  writeString(view, 0, "RIFF");
-  view.setUint32(4, 36 + length * numberOfChannels * 4, true);
-  writeString(view, 8, "WAVE");
-
-  // fmt sub-chunk
-  writeString(view, 12, "fmt ");
-  view.setUint32(16, 16, true); // subchunk1size
-  view.setUint16(20, 3, true); // format (3 for IEEE float)
-  view.setUint16(22, numberOfChannels, true);
-  view.setUint32(24, sampleRate, true);
-  view.setUint32(28, sampleRate * numberOfChannels * 4, true); // byterate
-  view.setUint16(32, numberOfChannels * 4, true); // blockalign
-  view.setUint16(34, 32, true); // bitspersample
-
-  // data sub-chunk
-  writeString(view, 36, "data");
-  view.setUint32(40, length * numberOfChannels * 4, true);
-
-  return view;
-}
-
-function writeString(view: DataView, offset: number, string: string) {
-  for (let i = 0; i < string.length; i++) {
-    view.setUint8(offset + i, string.charCodeAt(i));
-  }
-}
-
-// Add setFloat32Array method to DataView prototype if it doesn't exist
-if (!(DataView.prototype as any).setFloat32Array) {
-  (DataView.prototype as any).setFloat32Array = function (offset: number, array: Float32Array) {
-    for (let i = 0; i < array.length; i++) {
-      this.setFloat32(offset + i * 4, array[i], true);
-    }
-  };
-}
 
 interface AudioRecorderProps {
   onRecordingComplete: (file: File) => void;
@@ -128,12 +36,14 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
         try {
           // Create blob with proper MIME type
           const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
-          // Convert WebM to WAV
-          const wavFile = await convertWebMToWav(audioBlob);
-          const url = URL.createObjectURL(audioBlob); // Keep WebM for preview
+          const file = new File([audioBlob], `recording-${Date.now()}.webm`, {
+            type: "audio/webm",
+            lastModified: Date.now(),
+          });
+          const url = URL.createObjectURL(audioBlob);
 
           setAudioURL(url);
-          setRecordedFile(wavFile); // Store the WAV file
+          setRecordedFile(file);
         } catch (error) {
           console.error("Error creating audio file:", error);
           alert("Failed to process recording");
@@ -177,33 +87,9 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
     setIsPlaying(false);
   };
 
-  const handleAnalyze = async () => {
+  const handleAnalyze = () => {
     if (recordedFile) {
-      try {
-        // Create formData for the recorded file
-        const formData = new FormData();
-        formData.append("file", recordedFile);
-
-        // First get the transcription
-        const transcriptionText = await transcribeAudio(recordedFile);
-        formData.append("transcription", transcriptionText);
-
-        // Send to backend for prediction
-        const response = await fetch("http://localhost:8000/predict", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to analyze recording");
-        }
-
-        // Pass the file to parent component for further processing
-        onRecordingComplete(recordedFile);
-      } catch (error) {
-        console.error("Error processing recording:", error);
-        alert("Failed to process recording. Please try again.");
-      }
+      onRecordingComplete(recordedFile);
     }
   };
 
