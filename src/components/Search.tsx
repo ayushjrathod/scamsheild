@@ -1,10 +1,9 @@
-import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { Analysis } from "../types";
+import { analyzeTranscription, transcribeAudio } from "../utils/groq";
 import { AnalysisResult } from "./AnalysisResult";
 import { FileUpload } from "./FileUpload";
-import { transcribeAudio } from "../utils/groq";
 
 function Search() {
   const [isTranscribing, setIsTranscribing] = useState(false);
@@ -19,6 +18,9 @@ function Search() {
       // First get transcription from Groq
       const transcription = await transcribeAudio(file);
       setIsTranscribing(false);
+
+      // Get detailed analysis from Groq
+      const analysisDetails = await analyzeTranscription(transcription);
 
       // Then send for prediction
       const formData = new FormData();
@@ -35,7 +37,11 @@ function Search() {
       }
 
       const result: Analysis = await response.json();
-      setAnalysis(result);
+      setAnalysis({
+        ...result,
+        analysis_details: analysisDetails,
+      });
+
       toast.success("Analysis completed successfully!");
     } catch (error) {
       console.error("Processing error:", error);
@@ -56,7 +62,15 @@ function Search() {
 
           {(isAnalyzing || isTranscribing) && (
             <div className="text-center py-12">
-              <Loader2 className="w-12 h-12 animate-spin text-amber-500 mx-auto mb-4" />
+              <svg
+                className="w-12 h-12 animate-spin text-amber-500 mx-auto mb-4"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
               <p className="text-lg text-amber-900">
                 {isTranscribing ? "Transcribing audio..." : "Analyzing content..."}
               </p>

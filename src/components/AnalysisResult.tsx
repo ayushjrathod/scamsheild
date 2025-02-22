@@ -35,9 +35,12 @@ export function AnalysisResult({ analysis }: AnalysisResultProps) {
 
       <div>
         <h4 className="font-semibold mb-2">Call Transcription:</h4>
-        <pre className="text-sm text-gray-700 bg-gray-50 p-4 rounded-lg whitespace-pre-wrap font-sans">
+        <pre className="text-sm text-gray-700 bg-gray-50 p-4 rounded-lg whitespace-pre-wrap font-sans mb-6">
           {analysis.transcription}
         </pre>
+
+        <h4 className="font-semibold mb-2">Detailed Analysis:</h4>
+        <div className="text-sm text-gray-700 bg-gray-50 p-4 rounded-lg">{analysis.analysis_details}</div>
       </div>
     </div>
   );
