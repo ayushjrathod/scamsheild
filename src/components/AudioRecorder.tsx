@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { transcribeAudio } from "../utils/groq";
 
 interface AudioRecorderProps {
   onRecordingComplete: (file: File) => void;
@@ -87,9 +88,33 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
     setIsPlaying(false);
   };
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (recordedFile) {
-      onRecordingComplete(recordedFile);
+      try {
+        // Create formData for the recorded file
+        const formData = new FormData();
+        formData.append("file", recordedFile);
+
+        // First get the transcription
+        const transcriptionText = await transcribeAudio(recordedFile);
+        formData.append("transcription", transcriptionText);
+
+        // Send to backend for prediction
+        const response = await fetch("http://localhost:8000/predict", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to analyze recording");
+        }
+
+        // Pass the file to parent component for further processing
+        onRecordingComplete(recordedFile);
+      } catch (error) {
+        console.error("Error processing recording:", error);
+        alert("Failed to process recording. Please try again.");
+      }
     }
   };
 

@@ -16,11 +16,12 @@ function Search() {
     setIsAnalyzing(true);
 
     try {
+      // Handle both uploaded and recorded files
       const transcriptionText = await transcribeAudio(file);
       setTranscription(transcriptionText);
       setIsTranscribing(false);
 
-      // Get prediction first
+      // Send to backend for prediction
       const formData = new FormData();
       formData.append("file", file);
       formData.append("transcription", transcriptionText);
@@ -31,12 +32,12 @@ function Search() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to analyze transcription");
+        throw new Error("Failed to analyze audio");
       }
 
       const result = await response.json();
 
-      // Get detailed analysis using prediction results
+      // Get detailed analysis
       const analysisDetails = await analyzeTranscription(transcriptionText, result.label, result.score);
 
       setAnalysis({
