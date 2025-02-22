@@ -1,4 +1,4 @@
-import { Loader2, Mic, Square, Play, Pause, Send, RotateCcw } from "lucide-react";
+import { Loader2, Mic, Pause, Play, RotateCcw, Send, Square } from "lucide-react";
 import { useRef, useState } from "react";
 
 interface AudioRecorderProps {
@@ -110,7 +110,7 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
       {!isRecording && !audioURL && (
         <button
           onClick={startRecording}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          className="flex items-center space-x-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-400 transition-colors"
         >
           <Mic className="w-5 h-5" />
           <span>Start Recording</span>

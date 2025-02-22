@@ -1,10 +1,6 @@
 export interface Analysis {
-  id: string;
-  status: "suspicious" | "not suspicious"; // Note: backend returns "Suspicious" or "Not Suspicious"
+  prediction: string;
   confidence: number;
-  reasons: string[];
-  timestamp: string;
-  audioFileName: string;
   transcription: string;
 }
 
