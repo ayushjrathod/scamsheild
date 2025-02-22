@@ -1,4 +1,3 @@
-import { AlertTriangle, CheckCircle, FileAudio } from "lucide-react";
 import { Analysis } from "../types";
 
 interface AnalysisResultProps {
@@ -6,41 +5,40 @@ interface AnalysisResultProps {
 }
 
 export function AnalysisResult({ analysis }: AnalysisResultProps) {
-  const isSuspicious = analysis.prediction === "scam";
+  const confidence = (analysis.score * 100).toFixed(2);
+  const isScam = analysis.label === "spam";
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 max-w-2xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-3">
-          <FileAudio className="w-6 h-6 text-gray-500" />
-          <h3 className="text-lg font-semibold">Analysis Result</h3>
-        </div>
+    <div className="bg-white rounded-lg shadow-lg p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-900">Analysis Result</h2>
+        <span
+          className={`px-4 py-2 rounded-full text-sm font-semibold ${
+            isScam ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
+          }`}
+        >
+          {isScam ? "Potential Scam" : "Likely Legitimate"}
+        </span>
       </div>
 
-      <div className={`p-4 rounded-lg mb-6 ${isSuspicious ? "bg-red-50" : "bg-green-50"}`}>
-        <div className="flex items-center space-x-3">
-          {isSuspicious ? (
-            <AlertTriangle className="w-6 h-6 text-red-500" />
-          ) : (
-            <CheckCircle className="w-6 h-6 text-green-500" />
-          )}
-          <div>
-            <h4 className={`font-semibold ${isSuspicious ? "text-red-700" : "text-green-700"}`}>
-              {isSuspicious ? "Scam Call Detected" : "Legitimate Call"}
-            </h4>
-            <p className="text-sm text-gray-600">Confidence: {(analysis.confidence * 100).toFixed(1)}%</p>
+      <div className="space-y-4">
+        <div>
+          <p className="text-gray-600 mb-2">Confidence Score</p>
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div
+              className={`h-2.5 rounded-full ${isScam ? "bg-red-600" : "bg-green-600"}`}
+              style={{ width: `${confidence}%` }}
+            ></div>
           </div>
+          <p className="text-sm text-gray-500 mt-1">{confidence}% confident</p>
         </div>
-      </div>
 
-      <div>
-        <h4 className="font-semibold mb-2">Call Transcription:</h4>
-        <pre className="text-sm text-gray-700 bg-gray-50 p-4 rounded-lg whitespace-pre-wrap font-sans mb-6">
-          {analysis.transcription}
-        </pre>
-
-        <h4 className="font-semibold mb-2">Detailed Analysis:</h4>
-        <div className="text-sm text-gray-700 bg-gray-50 p-4 rounded-lg">{analysis.analysis_details}</div>
+        {analysis.analysis_details && (
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Detailed Analysis</h3>
+            <p className="text-gray-700 whitespace-pre-wrap">{analysis.analysis_details}</p>
+          </div>
+        )}
       </div>
     </div>
   );
